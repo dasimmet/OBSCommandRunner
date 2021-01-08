@@ -99,17 +99,14 @@ end
 
 function source_is_active(source_name_query)
     local sources = obs.obs_enum_sources()
-    local source = find_source_by_name_in_list(sources, source_name_query)
+	for _, stmp in ipairs(sources) do
+		if obs.obs_source_get_name(stmp) == source_name_query then
+			local source = stmp
+		end
+	end
     local is_active = obs.obs_source_active(source)
     obs.source_list_release(sources)
     return is_active
-end
-
-function timer_callback()
-    if not source_is_active(source_name) then
-        return
-    end
-    run_command()
 end
 
 function activate(activating)
@@ -121,9 +118,9 @@ function activate(activating)
 
 	if activating then
 		run_command()
-		obs.timer_add(timer_callback, refresh)
+		obs.timer_add(run_command, refresh)
 	else
-		obs.timer_remove(timer_callback)
+		obs.timer_remove(run_command)
 	end
 end
 
